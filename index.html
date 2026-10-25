@@ -1,0 +1,769 @@
+<html>
+<head>
+    <title>Pat and Toni are getting married!</title>
+  <meta charset="UTF-8" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/redux/3.5.2/redux.js" type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.0.1/react.js" type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.0.1/react-with-addons.js" type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-redux/4.4.5/react-redux.js" type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.23/browser.min.js" type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.0.1/react-dom.js" type="text/javascript"></script>
+<script src="https://unpkg.com/react-visibility-sensor@3.4.0/dist/visibility-sensor.min.js"></script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBN-IPsylIPGdDDQvpn9_y9GOoYH2OtqOc"
+  type="text/javascript"></script>    
+  <style>
+    body {
+	  margin: 0;
+	  font-family: 'Raleway', sans-serif;
+	  font-weight: 'light';
+    }
+  </style>
+  <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+      const { createStore } = Redux;
+      const { Provider, connect } = ReactRedux;
+      const initial_state = { page:'HOME', isNavFrozen:false };
+	  
+      function getAppData(state=initial_state, action) {
+        switch(action.type) {
+            case('CHANGE_PAGE'):
+				return { ...state, page: action.payload }
+			case('FREEZE_NAV'):
+				return {...state, isNavFrozen: action.payload }
+          default:
+            return state
+        }
+      }
+      
+      function changePage(page){
+        return {
+          type: 'CHANGE_PAGE',
+          payload: page
+        };
+      }
+	  
+	  function freezeNav(t_f) {
+		return {
+			type: 'FREEZE_NAV',
+			payload: t_f
+		};
+	  }
+	  
+      class NavLink extends React.Component {
+        constructor(props){
+          super(props);
+          this.clickLink = this.clickLink.bind(this);
+        }
+        clickLink(e) {
+          e.preventDefault();
+          store.dispatch(changePage(this.props.name));
+        }
+        render() {
+          const navLinkStyle = {
+            paddingLeft: '5px',
+			color: 'black',
+			textDecoration: 'none',
+          };
+          return(
+            <a href={this.props.link} style={navLinkStyle} onClick={this.clickLink}>{this.props.name}</a>
+          );
+        }
+      }
+      
+      class Nav extends React.Component {
+        constructor(props) {
+          super(props);
+		  this.handleHome = this.handleHome.bind(this);
+        }
+		handleHome(e){
+			e.preventDefault();
+			store.dispatch(changePage('HOME'));
+		}
+        render() {
+			const state = store.getState();
+          const parentStyle = state.isNavFrozen ? {
+            position: 'fixed',
+			top: '0px',
+			display: 'flex',
+            justifyContent: 'space-evenly',
+			backgroundColor: 'white',
+			width: '100%',
+			minHeight: '50px',
+			paddingTop: '50px',
+			borderBottom: '3px solid MistyRose',
+          } : {
+			display: 'flex',
+            justifyContent: 'space-evenly',
+            paddingBottom: '10px',
+            paddingTop: '50px',
+			minHeight: '50px',
+          }
+		  
+          const svgStyle = {
+            display: 'flex',
+            justifyContent: 'space-evenly',
+			paddingTop: '50px',
+			paddingBottom: '50px',
+          }
+		  const headerStyle = {
+			backgroundColor: 'white',
+			width: '100%',
+		  }
+          return(
+            <div style={headerStyle}>
+              <div style={svgStyle}>
+				<div onClick={this.handleHome}>
+					<img src="img/PatAndToni5.png"/>
+				</div>
+              </div>
+              <div style={parentStyle}>
+                <NavLink name={"HOME"} link={"index.html"} />
+                <NavLink name={"VENUE"} link={"venue.html"} />
+                <NavLink name={"ACCOMMODATIONS"} link={"accommodations.html"} />
+                <NavLink name={"WEDDING PARTY"} link={"wedding_party.html"} />
+                <NavLink name={"REGISTRY"} link={"registry.html"} />
+                <NavLink name={"PHOTOS"} link={"photos.html"} />
+				<NavLink name={"FAQ"} link={"faq.html"} />
+              </div>
+            </div>
+			);
+        }
+      }
+      
+      class Content extends React.Component {
+        render() {
+          const state = store.getState();
+		  const navPadding = state.isNavFrozen ? {
+			paddingTop: '106px',
+		  } : {
+			paddingTop: '0px',
+		  };
+          return(
+            <div style={navPadding}>
+              {(() => {
+                switch(state.page.toUpperCase()){
+                  case 'HOME':
+                    return <Home />;
+                  case 'VENUE':
+                    return <Venue />;
+                  case 'WEDDING PARTY':
+                    return <WeddingParty />
+                  case 'ACCOMMODATIONS':
+                    return <Accommodations />
+                  case 'REGISTRY':
+                    return <Registry />
+                  case 'PHOTOS':
+                    return <Photos />
+				  case 'FAQ':
+					return <Faq />
+                  default:
+                    return <Home />;
+                }
+              })()}
+            </div>
+          );
+        }
+      }
+	  
+	  class ComingSoon extends React.Component {
+		render() {
+			const parentStyle = {
+				display: 'flex',
+				justifyContent: 'center',
+			}
+			return (
+				<div style={parentStyle}>
+					<img src="img/comingsoon.png" />
+				</div>
+			);
+		}
+	  }
+	  
+	  class Spacer extends React.Component {
+		render() {
+			const spacerStyle = {
+				paddingTop: '52%',
+			}
+			return(
+				<div style={spacerStyle} ></div>
+			);
+		}
+	  }
+      
+      class Home extends React.Component {
+        render(){
+			const homeStyle = {
+				display: 'flex',
+				justifyContent: 'space-between',
+				flexDirection: 'column',
+			}
+			const imgStyle = {
+				display: 'flex',
+				justifyContent: 'center',
+			}
+			const imgSelfStyle = {
+				alignSelf: 'center',
+			}
+			const spacerStyle = {
+				minHeight: '50px',
+			}
+			const storyStyle = {
+				paddingLeft: '10%',
+				paddingRight: '10%',
+			}
+			const header1Style = {
+				display: 'flex',
+				justifyContent: 'center',
+				fontSize: '28pt',
+			}
+			const header3Style = {
+				display: 'flex',
+				justifyContent: 'center',
+				fontSize: '18pt',
+				paddingTop: '20px',
+			}
+          return(
+            <div style={homeStyle} >
+				<div style={imgStyle}>
+					<img style={imgSelfStyle} src="img/hug2.jpg" width="75%" height="auto"/>
+				</div>
+				<div style={header3Style}>Join us for our wedding celebration on May 18, 2019</div>
+				<div style={spacerStyle}></div>
+				<div style={header1Style}><img src="img/OurStory.png"></img></div>
+				<div style={storyStyle}>
+					<p>
+						We met on October 18, 2013 at Galway Hooker Pub on E 36th Street in New York City.
+					</p>
+					<p>
+						Pat’s friend from work invited him to happy hour. Toni ran into the same friend, a friend from college, in the subway and he asked her to join. We hit it off immediately, talking about Game of Thrones, Harry Potter and Toni making Pat show her his license because she didn’t believe his last name was Manning. The night eventually came to an end and we left without exchanging phone numbers.
+					</p>
+					<p>
+						The next night, Toni ran into the same friend again in a Hoboken bar. He mentioned that Pat thought Toni was cute and Toni had him send Pat her number right then and there. Pat started texting Toni to set up a date a few days later.
+					</p>
+					<p>
+						We have been together ever since.
+					</p>
+					<p>
+						On September 30, 2017 Pat told Toni he was taking her to brunch (like most weekends!). We walked to the Hoboken waterfront, where Pat walked Toni out to Pier C and got down on one knee with the New York City skyline in the background.
+					</p>
+				</div>
+				<div style={spacerStyle}></div>
+            </div>
+          );
+        }
+      }
+      
+	  
+		class GMap extends React.Component{
+
+		  constructor(props){
+			super(props);
+			this.googleChecker = this.googleChecker.bind(this);
+			this.initMap = this.initMap.bind(this);
+		  }
+		  
+		  googleChecker() {
+			if(!window.google) {
+			  setTimeout(this.googleChecker, 100);
+			} else {
+			  this.initMap();
+			}
+		  }
+		  
+		  
+		initMap() {
+			const clubPosition = new google.maps.LatLng(this.props.lat, this.props.lon);
+				var mapOptions = {
+					center: clubPosition,
+					zoom: 12,
+				}
+			var map = new google.maps.Map(document.getElementById("googleMap"), mapOptions);
+			var marker = new google.maps.Marker({
+			  position: clubPosition,
+			  label: this.props.marker,
+			  map: map
+			});
+		}
+		  componentDidMount(){
+			this.googleChecker();
+		  }
+
+		  render(){
+			const mapStyle = {
+				width: '100%',
+				height: '100%',
+				zIndex: -99,
+			}
+			const parentStyle = {
+				display: 'flex',
+				justifyContent: 'center',
+				zIndex: -99,
+			}
+			return(
+				<div style={parentStyle} >
+					<div id="googleMap" style={mapStyle}></div>
+				</div>
+			);
+		  }
+		}
+
+      class Venue extends React.Component {
+        render(){
+			const outerMapStyle = {
+				minWidth: '550px',
+				height: '350px',
+			}
+			const parentStyle = {
+				display: 'flex',
+				justifyContent: 'center',
+				paddingBottom: '10px',
+			}
+			const parentAddressStyle = {
+				display: 'flex',
+				flexDirection: 'column',
+				paddingBottom: '30px',
+			}
+			const addressStyle = {
+				alignSelf: 'left',
+				paddingLeft: '30px',
+				fontSize: '16pt',
+			}
+			const venueStyle = {
+				display: 'flex',
+				justifyContent: 'space-around',
+				paddingTop: '30px',
+				marginLeft: '10%',
+				marginRight: '10%',
+				height: '100%',
+				maxHeight: '500px',
+			}
+			const iframeStyle = {
+				border: '0px',
+				maxHeight: '400px',
+				maxWidth: '550px',
+			}
+			const headerStyle = {
+				height: '75px',
+				width: 'auto',
+			}
+			const paddingStyle = {
+				paddingTop: '140px',
+			}
+			/*<GMap lat={41.040474} lon={-74.5829443} marker={"Pat & Toni's Wedding at Rock Island Lake Club"}/> */
+			  return(
+			<div>
+				<div style={parentStyle}><img style={headerStyle} src="img/Ceremony.png" /></div>
+				<div style={venueStyle}>
+					<div>
+						  <div style={parentAddressStyle}>
+							<div style={addressStyle}>Rock Island Lake Club</div>
+							<div style={addressStyle}>485 Glen Rd</div>
+							<div style={addressStyle}>Sparta Township, NJ 07871</div>
+						 </div>
+						 <div style={parentAddressStyle}>
+							<div style={addressStyle}>Saturday, May 18, 2019, 5:30PM</div>
+							<div style={addressStyle}>Cocktail Attire</div>
+						 </div>
+					</div>
+					<div style={outerMapStyle}>
+						<iframe src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d12037.258021651485!2d-74.5831879!3d41.0402509!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x135d1279090ee599!2sRock+Island+Lake+Club!5e0!3m2!1sen!2sus!4v1531015652016" width="600" height="450" frameborder="0" style={iframeStyle} allowfullscreen></iframe>
+					</div>
+				</div>
+				<div style={paddingStyle}></div>
+			</div>
+			  )
+        }
+      }
+	  
+	  class Member extends React.Component {
+		render() {
+			const parentStyle = {
+				display: 'flex',
+				justifyContent: 'space-between',
+				paddingLeft: '17%',
+				paddingRight: '17%',
+			};
+			const nameStyle = {
+				paddingLeft: '15%',
+			};
+			const nameImgStyle = {
+				maxHeight: '50px',
+				width: 'auto',
+			};
+			const titleStyle = {
+				paddingLeft: '16%',
+				paddingTop: '5px',
+				fontSize: '16pt',
+			};
+			const imgStyle = {
+				height: 'auto',
+				width: '200px',
+			};
+			const bioStyle = {
+				padding: '20px',
+			};
+			return (
+				<div>
+					<div style={nameStyle}><img style={nameImgStyle} src={this.props.name} /></div>
+					<div style={titleStyle}>{this.props.title}</div>
+					<div style={parentStyle}>
+						<div style={bioStyle}><p>{this.props.bio}</p></div>
+						<div style={bioStyle}><img style={imgStyle} src={this.props.picture} /></div>
+					</div>
+				</div>
+			)
+		}
+	  }
+      
+      class WeddingParty extends React.Component {
+        render(){
+			const headerStyle = {
+				display: 'flex',
+				justifyContent: 'center',
+				paddingTop: '30px',
+				paddingBottom: '50px',
+			};
+			const headerImgStyle = {
+				maxHeight: '100px',
+				width: 'auto',
+			};
+          return(
+			<div>
+				<div style={headerStyle}><img style={headerImgStyle} src="img/names/Bridesmaids.png" /></div>
+				<Member name="img/names/Nicole.png" title="Maid of Honor" picture="img/photos/Nicole_crop.jpg"  bio="Nicole and I have been friends for almost 20 years! We met in 6th grade at Lincoln-Roosevelt Elementary School and shared most of our classes through high school, where we always immediately paired up as soon as a group project was assigned. We grew up swimming in her pool and basement hopping to whomever was “having people over.” Post-grad we both moved to Hoboken where basement hopping became brunching and bar hopping!"/>
+				<Member name="img/names/Kelsey.png" title="Bridesmaid" picture="img/photos/Kelsey_crop.jpg" bio="Kelsey and I met at the University of Delaware and she is my “little sister” from our sorority, Alpha Delta Pi. After graduation we were roommates in Hoboken for 3 years. We share a love of Harry Potter, Rupert Grint, Ed Sheeran, Game of Thrones, Broadway shows, and high school-era emo music. Most of our adventures together involve seeing one of them!" />
+				<Member name="img/names/Paulina.png" title="Bridesmaid" picture="img/photos/Paulina_crop.jpg" bio="Paulina and I lived on the same floor our freshman year at the University of Delaware. We were attached at the hip as roommates, sorority sisters in Alpha Delta Pi, and Blue Hen Ambassador tour guides. You could usually find us first in line for the dining hall at 5pm or giggling together over inside jokes without having to complete a sentence. She is an Eagles fan, but somehow we are still friends!" />
+				<Member name="img/names/Kelly.png	" title="Bridesmaid" picture="img/photos/Kelly_crop.jpg" bio="Kelly and I met in 5th grade at Lincoln-Roosevelt Elementary School (in the same class I met Alex!) and became friends right away. Kelly lived across the street from Nicole, so we would all end up together walking the neighborhood or making up our infamous dances in Kelly’s driveway. Post-grad we both ended up in Hoboken where driveway dances have turned into brunches and wine tastings!" />
+				<Member name="img/names/Jenna.png" title="Bridesmaid" picture="img/photos/Jenna_crop.jpg" bio="Jenna is my younger cousin and first fellow gal pal on both sides of my family. She was the first person I ever babysat and would make me watch “A Baby Story” on TLC, which I hated and she loved. It paid off though, as she is now in college (at the greatest school there is - the University of Delaware!) and set on becoming a doctor." />
+				<Member name="img/names/Mary.png" title="Bridesmaid" picture="img/photos/Mary_crop.jpg" bio="Mary is my younger cousin and the third Luciano Blue Hen. Along with Jenna, we became a girls trio, spending our time lounging on their huge animal pool inflatables and making the “kids table” fun at all family gatherings. Jenna joined me in raving about the University of Delaware, where Mary is now a freshman!" />
+				<div style={headerStyle}><img style={headerImgStyle} src="img/names/Groomsmen.png" /></div>
+				<Member name="img/names/Jim.png" title="Best Man" picture="img/photos/Jim_crop.jpg" bio="Jim has been my brother for as long as I can remember.  He lives in Los Angeles where he writes and makes music.  We expect his speech to have three acts and bring in big box-office revenues." />
+				<Member name="img/names/Pat.png" title="Groomsman" picture="img/photos/Pat_crop.jpg" bio="Pat and I became friends in kindergarten when we realized we had the same name.  Now Pat lives in Jersey City only a mile away so I get to see him at least twice a year." />
+				<Member name="img/names/Doug.png" title="Groomsman" picture="img/photos/Doug_crop.jpg" bio="Doug and I have been friends since kindergarten.  He now lives in Pennsylvania with his wife, Lindsay, and their two (or more) cats." />
+				<Member name="img/names/Dan.png" title="Groomsman" picture="img/photos/Dan_crop.jpg" bio="I first met Dan at Doug’s house, where he was busy being Doug’s brother.  Dan and I share lots of interests like a love of traveling to foreign countries and drinking there." />
+				<Member name="img/names/Justin.png" title="Groomsman" picture="img/photos/Justin_crop.jpg" bio="Justin is Toni’s brother.  He is a professional actor/singer, and we have seen him perform many times.  Now it’s his turn to watch us." />
+				<Member name="img/names/Brian.png" title="Groomsman" picture="img/photos/Brian_crop.jpg" bio="I met Brian my freshman year of college when I found him in my dorm room.  He didn’t leave for the entire year and slept in the second bed the university had given me for some reason.  Although he lived in Hoboken for a time, he now lives in Los Angeles." />
+				<div style={headerStyle}><img style={headerImgStyle} src="img/names/Officiant.png" /></div>
+				<Member name="img/names/Alex.png" title="Officiant" picture="img/photos/Alex_crop.jpg" bio="Alex and Toni have known each other since they were 10 years old. We shared many classes throughout our time at Roxbury and continued on to college together at the University of Delaware, where Toni tried to keep Alex out of trouble and Alex tried to date all of Toni’s sorority sisters. Alex moved to Los Angeles after college, where Toni brought Pat to meet him in the spring of 2014. We both asked Alex to be our officiant while out in NYC in December 2017!" />
+			</div>
+          )
+        }
+      }
+      
+      class Accommodations extends React.Component {
+        render() {
+			const outerMapStyle = {
+				minWidth: '30%',
+			}
+			const parentStyle = {
+				display: 'flex',
+				justifyContent: 'center',
+			}
+			const noticeStyle = {
+				display: 'flex',
+				justifyContent: 'center',
+				fontSize: '20pt',
+				marginTop: '10px',
+				marginBottom: '10px',
+			}
+			const parentAddressStyle = {
+				display: 'flex',
+				flexDirection: 'column',
+				paddingLeft: '30px',
+				paddingBottom: '30px',
+			}
+			const addressStyle = {
+				paddingTop: '10px',
+				alignSelf: 'left',
+				fontSize: '16pt',
+				maxWidth: '450px',
+			}
+			const addressStyle2 = {
+				alignSelf: 'left',
+				fontSize: '16pt',
+				maxWidth: '450px',
+			}
+			const venueStyle = {
+				display: 'flex',
+				justifyContent: 'space-around',
+				paddingBottom: '50px',
+				paddingTop: '30px',
+				marginLeft: '10%',
+				marginRight: '10%',
+			}
+			const attractionStyle = {
+				maxHeight: '55px',
+			}
+			const iframeStyle = {
+				border: '0px',
+				maxHeight: '400px',
+				maxWidth: '550px',
+			}
+			const hotelStyle = {
+				paddingBottom: '15px',
+				height: '75px',
+			}
+			const paddingStyle = {
+				paddingTop: '185px',
+			}
+          return(
+		  <div>
+			<div style={parentStyle}><img style={hotelStyle} src="img/Hotel.png" /></div>
+			<div style={noticeStyle}>Shuttles will be provided for hotel guests,</div>
+			<div style={noticeStyle}>departing the Homewood Suites (next to TownPlace Suites) at 4:30pm.</div>
+			<div style={noticeStyle}>They will depart Rock Island Lake Club at 11pm.</div>
+			<div style={venueStyle}>
+				<div>
+					  <div style={parentAddressStyle}>
+						<div style={addressStyle2}>Homewood Suites by Hilton Dover-Rockaway</div>
+						<div style={addressStyle2}>2 Commerce Center Drive</div>
+						<div style={addressStyle2}>Dover, New Jersey 07801</div>
+						<div style={addressStyle2}>1-973-989-8899</div>
+					 </div>
+				</div>
+				<div style={outerMapStyle}>
+					<iframe src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d12062.756067084634!2d-74.5574067!3d40.9006361!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x771153e376a8a8a1!2sHomewood+Suites+by+Hilton+Dover+-+Rockaway!5e0!3m2!1sen!2sus!4v1531014613125" width="600" height="450" frameborder="0" style={iframeStyle} allowfullscreen></iframe>
+				</div>
+			</div>
+			<div style={venueStyle}>
+				<div>
+					  <div style={parentAddressStyle}>
+						<div style={addressStyle2}>TownPlace Suites by Marriott Dover-Rockaway</div>
+						<div style={addressStyle2}>4 Commerce Center Drive</div>
+						<div style={addressStyle2}>Dover, New Jersey 07801</div>
+						<div style={addressStyle2}>1-973-659-9999</div>
+					 </div>
+				</div>
+				<div style={outerMapStyle}>
+					<iframe src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d12062.941121171112!2d-74.5570687!3d40.8996214!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0xa6647abb5d7a7c25!2sTownePlace+Suites+by+Marriott+Dover+Rockaway!5e0!3m2!1sen!2sus!4v1553910228551!5m2!1sen!2sus" width="600" height="450" frameborder="0" style={iframeStyle} allowfullscreen></iframe>
+				</div>
+			</div>
+			<div style={paddingStyle}></div>
+		</div>
+          )
+        }
+      }
+      
+      class Registry extends React.Component {
+        render() {
+			const imgStyle = {
+				height: '125px',
+				width: 'auto',
+				maxWidth: '400px',
+				marginBottom: '20px',
+			}
+			const outerStyle = {
+				display: 'flex',
+				justifyContent: 'center',
+			}
+			const parentStyle = {
+				display: 'flex',
+				flexDirection: 'column',
+				
+			}
+			const itemStyle = {
+				paddingTop: '30px',
+				display: 'flex',
+				justifyContent: 'center',
+				flexDirection: 'column',
+			}
+			const linkStyle = {
+				display: 'flex',
+				justifyContent: 'center',
+			}
+			const spacerStyle = {
+				paddingBottom: '755px',
+			}
+          return(
+			<div style={outerStyle} >
+				<div style={parentStyle} >
+					<div style={itemStyle}><img src="img/zola-logo.jpg" style={imgStyle} /><span style={linkStyle}><a href="https://www.zola.com/registry/patandtoni" target="_blank">Zola</a></span></div>
+					<div style={itemStyle}><img src="img/macys-logo.jpg" style={imgStyle} /><span style={linkStyle}><a href="https://www.macys.com/wgl/registry/guest/6967868" target="_blank">Macy's</a></span></div>
+					<div style={itemStyle}><img src="img/crate-and-barrel-logo.jpg" style={imgStyle} /><span style={linkStyle}><a href="https://www.crateandbarrel.com/gift-registry/toni-luciano-and-patrick-manning/r5879419" target="_blank">Crate & Barrel</a></span></div>
+				</div>
+				<div style={spacerStyle}></div>
+			</div>
+          )
+        }
+      }
+      
+      class Photos extends React.Component {
+        render() {
+			const parentStyle = {
+				display: 'flex',
+				flexDirection: 'column',
+				justifyContent: 'flex-start',
+				flexWrap: 'wrap',
+			}
+			const imgStyle={
+				width: '75%',
+				alignSelf: 'center',
+				marginBottom: '-50px',
+			}
+			const paddingStyle = {
+				paddingTop: '50px',
+			}
+          return(
+            <div style={parentStyle}>
+				<img src="img/collage/collage_1.jpg" style={imgStyle}/>
+				<img src="img/collage/collage_2.jpg" style={imgStyle}/>
+				<img src="img/collage/collage_3_1.jpg" style={imgStyle}/>
+				<img src="img/collage/collage_3_2.jpg" style={imgStyle}/>
+				<div style={paddingStyle}></div>
+			</div>
+          )
+        }
+      }
+	  
+	  class Faq extends React.Component {
+		render() {
+			const outerStyle = {
+				display: 'flex',
+				justifyContent: 'center',
+			}
+			const parentStyle = {
+				display: 'flex',
+				justifyContent: 'center',
+				flexDirection: 'column',
+				width: '100%',
+				paddingLeft: '10%',
+			}
+			const QaStyle = {
+				display: 'flex',
+				justifyContent: 'flex-start',
+				flexDirection: 'column',
+			}
+			const qStyle = {
+				paddingTop: '10px',
+				paddingBottom: '10px',
+				fontSize: '14pt',
+			}
+			const imgStyle = {
+				height: '75px',
+			}
+			const outerImgStyle = {
+				display: 'flex',
+				justifyContent: 'center',
+			}
+			return (
+				<div style={outerStyle}>
+					<div style={parentStyle}>
+						<div style={outerImgStyle}>
+							<img style={imgStyle} src="img/FAQ.png" />
+						</div>
+						<div style={QaStyle} >
+							<div style={qStyle}>
+								<h3>Where is the ceremony and reception taking place?</h3>
+								<p>The ceremony and reception will both take place at Rock Island Lake Club.</p>
+							</div>
+							<div style={qStyle}>
+								<h3>Will transportation be provided for hotel guests?</h3>
+								<p>Yes.  Shuttles will be provided for hotel guests, departing the Homewood Suites (next to TownPlace Suites) at 4:30pm.  They will depart Rock Island Lake Club at 11pm.</p>
+							</div>
+							<div style={qStyle}>
+								<h3>Will parking be available?</h3>
+								<p>Yes! Valet will be provided free of charge.</p>
+							</div>
+							<div style={qStyle}>
+								<h3>What is the dress code?</h3>
+								<p>Cocktail attire.</p>
+							</div>
+							<div style={qStyle}>
+								<h3>Should I wear white?</h3>
+								<p>No, please reserve white for the bride.</p>
+							</div>
+							<div style={qStyle}>
+								<h3>Can I take pictures and post them on social media?</h3>
+								<p>We are having a phone-free ceremony. Once the party starts, feel free to snap and post!</p>
+							</div>
+							<div style={qStyle}>
+								<h3>How do I contact you if I have other questions?</h3>
+								<p>Feel free to email Toni (luciano.tonim@gmail.com) or Pat (pmm211@gmail.com) with any other questions!</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			)
+		}
+	  }
+
+		class Footer extends React.Component {
+			render() {
+				const footerStyle = {
+					bottom: '0px',
+					width: '100%',
+				}
+				const parentStyle = {
+					display: 'flex',
+					alignContent: 'center',
+					flexDirection: 'column',
+				}
+				const signatureStyle = {
+					alignSelf: 'center',
+					fontSize: '10pt',
+				}
+				return(
+					 <div style={footerStyle} >
+						<div style={parentStyle}>
+							<div style={signatureStyle}>Created By</div>
+							<div style={signatureStyle}>Pat Manning</div>
+						</div>
+					 </div>
+				);
+			}
+		}
+      
+        class App extends React.Component {
+          componentDidMount(){
+            const {store} = this.context;
+            this.unsubscribe = store.subscribe(() =>
+              this.forceUpdate()
+            );
+			window.addEventListener('scroll', this.handleScroll);
+          }
+		  componentWillUnmount() {
+			window.removeEventListener('scroll', this.handleScroll);
+			}
+		  handleScroll(e){
+			const scrollHeight = 410;
+			const state = store.getState();
+			if(this.scrollY >= scrollHeight && !state.isNavFrozen ){
+				store.dispatch(freezeNav(true));
+			} else if (this.scrollY < scrollHeight && state.isNavFrozen) {
+				store.dispatch(freezeNav(false));
+			}
+		  }
+            render(){
+              const { store } = this.context;
+              const state = store.getState();
+                return (
+                    <div>
+						<div>
+							<Nav />
+						</div>
+                        <Content />
+						<Footer />
+                    </div>
+                );
+            }
+        }
+      
+			  
+      let store = createStore(getAppData);
+      
+      App.contextTypes = {
+        store: React.PropTypes.object
+      }
+    
+        ReactDOM.render(
+          <Provider store={store}>
+            <App />
+          </Provider>,
+            document.getElementById("root")
+        );     
+    </script>
+</body>
+</html>
